@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ReliefLink — Disaster Coordination Command</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="stylesheet" href="/static/styles.css"/>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="rail">
+    <div class="brand-mark"><span>RL</span><i></i></div>
+    <button class="nav active" data-view="command"><b>⌁</b><small>COMMAND</small></button>
+    <button class="nav" data-view="requests"><b>◎</b><small>REQUESTS</small></button>
+    <button class="nav" data-view="resources"><b>◈</b><small>RESOURCES</small></button>
+    <button class="nav" data-view="network"><b>⌘</b><small>NETWORK</small></button>
+    <button class="nav" data-view="alerts"><b>△</b><small>ALERTS</small></button>
+    <div class="rail-spacer"></div>
+    <button class="nav" id="helpBtn"><b>?</b><small>HELP</small></button>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">RELIEFLINK / RESPONSE GRID <span class="live-dot"></span> LIVE PROTOTYPE</div>
+        <h1 id="pageTitle">COMMAND CENTER</h1>
+      </div>
+      <div class="top-actions">
+        <div class="sync"><span></span> DEMO FEED <b id="clock">11:34:00</b></div>
+        <button class="panic" id="reportBtn">+ REPORT NEED</button>
+        <button class="user-chip" id="loginBtn"><span class="avatar">?</span><span id="userLabel">SIGN IN</span></button>
+      </div>
+    </header>
+
+    <section class="view active" id="view-command">
+      <div class="stat-grid">
+        <div class="stat"><span>ACTIVE INCIDENTS</span><strong id="sIncidents">12</strong><em>+3 today</em></div>
+        <div class="stat hot"><span>OPEN / URGENT</span><strong id="sRequests">2</strong><em>priority queue</em></div>
+        <div class="stat"><span>RESOURCES READY</span><strong id="sResources">918</strong><em>units available</em></div>
+        <div class="stat"><span>TEAMS DEPLOYED</span><strong id="sTeams">27</strong><em>field + transport</em></div>
+        <div class="stat"><span>AVG MATCH TIME</span><strong id="sMatch">04:18</strong><em>↓ 18% vs demo baseline</em></div>
+      </div>
+
+      <div class="command-grid">
+        <div class="map-card panel">
+          <div class="panel-head"><div><span class="label">LIVE RESPONSE MAP</span><h2>DELHI RESPONSE GRID</h2></div><div class="legend"><i class="red"></i>urgent <i class="amber"></i>active <i class="cyan"></i>resource</div></div>
+          <div id="map"></div>
+          <div class="map-footer"><span>● 12 incidents</span><span>↗ 27 deployed</span><span>⌁ 5 active routes</span><span class="demo-tag">SIMULATED OPERATIONS</span></div>
+        </div>
+
+        <div class="queue panel">
+          <div class="panel-head"><div><span class="label">AI-ASSISTED ACTION QUEUE</span><h2>NEXT BEST ACTIONS</h2></div><button class="ghost" onclick="switchView('requests')">VIEW ALL →</button></div>
+          <div id="queueList" class="queue-list"></div>
+        </div>
+
+        <div class="activity panel">
+          <div class="panel-head"><div><span class="label">EVENT STREAM</span><h2>WHAT'S MOVING</h2></div><span class="live-pill">● LIVE</span></div>
+          <div id="activityList" class="activity-list"></div>
+        </div>
+
+        <div class="route panel">
+          <div class="panel-head"><div><span class="label">ROUTE INTELLIGENCE</span><h2>CONVOY RL-22</h2></div><span class="route-status">EN ROUTE</span></div>
+          <div class="route-line"><div class="route-node done">✓</div><div><b>Patparganj Hub</b><small>Departed 10:56</small></div><span>→</span><div class="route-node">02</div><div><b>Mayur Vihar</b><small>ETA 11:24</small></div></div>
+          <div class="route-metrics"><div><span>DISTANCE</span><b>8.6 km</b></div><div><span>ROAD RISK</span><b class="amber-txt">MEDIUM</b></div><div><span>CARGO</span><b>112 shelter sets</b></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-requests">
+      <div class="view-grid">
+        <div class="panel large">
+          <div class="panel-head"><div><span class="label">INCOMING NEEDS</span><h2>REQUEST QUEUE</h2></div><div class="filters"><button class="filter active" data-filter="ALL">ALL</button><button class="filter" data-filter="URGENT">URGENT</button><button class="filter" data-filter="MEDICAL">MEDICAL</button><button class="filter" data-filter="FOOD">FOOD</button></div></div>
+          <div id="requestTable" class="request-table"></div>
+        </div>
+        <div class="panel side-panel">
+          <span class="label">PRIORITY LOGIC</span><h2>WHY THIS FIRST?</h2>
+          <div class="logic"><b>01</b><span>Human urgency</span><strong>40%</strong></div>
+          <div class="logic"><b>02</b><span>Resource feasibility</span><strong>25%</strong></div>
+          <div class="logic"><b>03</b><span>Travel / road risk</span><strong>20%</strong></div>
+          <div class="logic"><b>04</b><span>Coverage gap</span><strong>15%</strong></div>
+          <div class="explain">Recommendation is a decision-support signal. A human coordinator retains dispatch control.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-resources">
+      <div class="resource-head panel">
+        <div><span class="label">RESOURCE NETWORK</span><h2>WHO CAN HELP RIGHT NOW?</h2></div>
+        <button class="panic" id="addResourceBtn">+ REGISTER RESOURCE</button>
+      </div>
+      <div id="resourceGrid" class="resource-grid"></div>
+    </section>
+
+    <section class="view" id="view-network">
+      <div class="network-grid">
+        <div class="panel network-hero">
+          <span class="label">NGO / VOLUNTEER NETWORK</span>
+          <h2>FROM CAPACITY<br><b>TO COORDINATED ACTION.</b></h2>
+          <p>NGOs publish verified capacity. Coordinators see proximity, capability, availability and route constraints before assigning a mission.</p>
+          <div class="network-kpis"><b>38 <small>NGO nodes</small></b><b>412 <small>verified volunteers</small></b><b>74 <small>active vehicles</small></b></div>
+        </div>
+        <div class="panel roster"><div class="panel-head"><h2>FIELD PARTNERS</h2><span>VERIFIED</span></div>
+          <div class="partner"><i></i><b>Sahyog Response</b><small>Medical · 36 kits · 8 volunteers</small><strong>READY</strong></div>
+          <div class="partner"><i></i><b>Jal Seva NGO</b><small>Water · 4 tankers · Wazirabad</small><strong>READY</strong></div>
+          <div class="partner"><i></i><b>Asha Foundation</b><small>Shelter · 112 sets · 2 vehicles</small><strong>EN ROUTE</strong></div>
+          <div class="partner"><i></i><b>Nagrik Network</b><small>Volunteers · 28 · Laxmi Nagar</small><strong>READY</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-alerts">
+      <div class="alerts-grid">
+        <div class="panel large"><div class="panel-head"><div><span class="label">WARNING LAYER</span><h2>ALERTS & FIELD SIGNALS</h2></div><span class="demo-tag">DEMO DATA</span></div><div id="alertsList"></div></div>
+        <div class="panel sources"><span class="label">REFERENCE SIGNALS</span><h2>CONNECTED SOURCES</h2>
+          <div class="source"><b>NDMA SACHET</b><span>Geo-targeted alert model</span><a href="https://sachet.ndma.gov.in/" target="_blank">OPEN ↗</a></div>
+          <div class="source"><b>IMD MAUSAM</b><span>Warnings / nowcast model</span><a href="https://mausam.imd.gov.in/" target="_blank">OPEN ↗</a></div>
+          <div class="source"><b>OPENSTREETMAP</b><span>Road & map data</span><a href="https://www.openstreetmap.org/" target="_blank">OPEN ↗</a></div>
+          <p class="micro">Prototype does not claim these live feeds are connected. The cards above demonstrate where verified external signals would enter the coordination layer.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer><span>RELIEFLINK · HUMAN-IN-THE-LOOP DISASTER COORDINATION</span><span>© PROTOTYPE · DATA SHOWN AS DEMO / SIMULATED</span></footer>
+  </main>
+</div>
+
+<div class="modal" id="authModal">
+  <div class="modal-card">
+    <button class="close" onclick="closeModal('authModal')">×</button>
+    <span class="label">ACCESS RELIEFLINK</span><h2>WHO ARE YOU?</h2>
+    <div class="role-tabs"><button class="role active" data-role="coordinator">COORDINATOR</button><button class="role" data-role="affected">AFFECTED PERSON</button><button class="role" data-role="ngo">NGO / VOLUNTEER</button></div>
+    <div class="login-copy" id="roleCopy">Manage the response queue, resources, routes and dispatches.</div>
+    <input id="email" placeholder="Email" value="coordinator@relieflink.demo">
+    <input id="password" type="password" placeholder="Password" value="demo123">
+    <button class="primary" id="doLogin">ENTER COMMAND</button>
+    <small>Demo login: use the prefilled credentials or select a role.</small>
+  </div>
+</div>
+
+<div class="modal" id="needModal">
+  <div class="modal-card wide">
+    <button class="close" onclick="closeModal('needModal')">×</button>
+    <span class="label">AFFECTED PERSON / FIELD REPORT</span><h2>REQUEST RELIEF</h2>
+    <div class="form-grid">
+      <input id="needName" placeholder="Your name">
+      <input id="needPhone" placeholder="Phone">
+      <select id="needType"><option>Medical</option><option>Food</option><option>Water</option><option>Shelter</option><option>Rescue</option><option>Other</option></select>
+      <input id="needLocation" placeholder="Location / landmark">
+      <input id="needPeople" type="number" value="1" min="1" placeholder="People affected">
+      <textarea id="needDetails" placeholder="What is needed? Any urgent details?"></textarea>
+    </div>
+    <div class="privacy-note">For a real deployment, location and identity would be collected with consent and verified before operational dispatch.</div>
+    <button class="primary" id="submitNeed">SEND REQUEST →</button>
+  </div>
+</div>
+
+
+
+<div class="modal" id="resourceModal">
+  <div class="modal-card wide">
+    <button class="close" onclick="closeModal('resourceModal')">×</button>
+    <span class="label">NGO / VOLUNTEER ONBOARDING</span><h2>REGISTER RESOURCE</h2>
+    <div class="form-grid">
+      <input id="resName" placeholder="Resource (e.g. Medical kits)">
+      <input id="resOwner" placeholder="Organisation / team">
+      <input id="resAvailable" type="number" min="1" value="10" placeholder="Quantity">
+      <select id="resUnit"><option>kits</option><option>packs</option><option>litres</option><option>tankers</option><option>vehicles</option><option>volunteers</option><option>boats</option><option>sets</option></select>
+      <input id="resNear" placeholder="Nearest area / hub">
+      <select id="resStatus"><option>READY</option><option>EN ROUTE</option></select>
+    </div>
+    <div class="privacy-note">Demo onboarding: in production, organisation identity, capacity and location would be verified before appearing as dispatchable inventory.</div>
+    <button class="primary" id="submitResource">ADD TO NETWORK →</button>
+  </div>
+</div>
+
+
+
+<div class="modal" id="helpModal">
+  <div class="modal-card">
+    <button class="close" onclick="closeModal('helpModal')">×</button>
+    <span class="label">QUICK GUIDE</span><h2>HOW RELIEFLINK WORKS</h2>
+    <div class="help-steps">
+      <div><b>01</b><span>Report a need</span><small>Submit an urgent request with location and people affected.</small></div>
+      <div><b>02</b><span>Verify & prioritise</span><small>Requests enter the human-reviewed priority queue.</small></div>
+      <div><b>03</b><span>Match resources</span><small>Compare capacity, proximity and route constraints.</small></div>
+      <div><b>04</b><span>Dispatch & track</span><small>Coordinator dispatches a verified resource and monitors activity.</small></div>
+    </div>
+    <button class="primary" onclick="closeModal('helpModal');switchView('command')">BACK TO COMMAND CENTER</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>
