@@ -5,6 +5,7 @@ from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 # -----------------------------------------------------------------------------
@@ -13,6 +14,7 @@ from pydantic import BaseModel, Field
 
 BASE_DIR = Path(__file__).resolve().parent
 INDEX_FILE = BASE_DIR / "index.html"
+STATIC_DIR = BASE_DIR / "static"
 
 app = FastAPI(
     title="ReliefLink",
@@ -413,3 +415,4 @@ def dispatch_request(request_id: str):
         status_code=404,
         detail="Request not found",
     )
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
