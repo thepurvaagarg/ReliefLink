@@ -1,4 +1,4 @@
-```python
+
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -413,4 +413,3 @@ def dispatch_request(request_id: str):
         status_code=404,
         detail="Request not found",
     )
-```
